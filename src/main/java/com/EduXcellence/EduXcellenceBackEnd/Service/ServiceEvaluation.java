@@ -76,8 +76,10 @@ public class ServiceEvaluation {
             System.out.println(formationId);
             Query query = new Query(Criteria.where("formationID").is(formationId));
             Evaluation evaluation = mongoTemplate.findOne(query, Evaluation.class);
-            map.put("Dateeval", evaluation.getDateEval());
-            map.put("Lien", evaluation.getLien());
+            if (evaluation!=null){
+                map.put("Dateeval", evaluation.getDateEval());
+                map.put("Lien", evaluation.getLien());
+            }
         } else {
             map.put("Message", "Accès refusé");
         }

@@ -8,6 +8,7 @@ import com.EduXcellence.EduXcellenceBackEnd.Service.ServiceEmail;
 import com.EduXcellence.EduXcellenceBackEnd.Service.ServiceParticipant;
 import com.EduXcellence.EduXcellenceBackEnd.Service.ServicePayement;
 import com.itextpdf.text.DocumentException;
+import freemarker.template.TemplateException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -103,7 +104,7 @@ public class ParticipantController {
     }
 
     @GetMapping("/certification/{dformation}/{idparticipant}")
-    public ResponseEntity<byte[]> generateAttestation(@PathVariable String dformation, @PathVariable String idparticipant) throws IOException, DocumentException {
+    public ResponseEntity<byte[]> generateAttestation(@PathVariable String dformation, @PathVariable String idparticipant) throws IOException, DocumentException, com.lowagie.text.DocumentException, TemplateException {
         byte[] pdfBytes = serviceAttestation.generateAttestation(dformation, idparticipant);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);

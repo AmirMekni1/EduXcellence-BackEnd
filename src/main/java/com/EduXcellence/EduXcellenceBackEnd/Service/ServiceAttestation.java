@@ -7,25 +7,26 @@ import com.EduXcellence.EduXcellenceBackEnd.Repository.AttestationRepo;
 import com.EduXcellence.EduXcellenceBackEnd.Repository.FormationRepo;
 import com.EduXcellence.EduXcellenceBackEnd.Repository.ParticipantRepo;
 import com.EduXcellence.EduXcellenceBackEnd.Security.AuthenticationFilter;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.lowagie.text.DocumentException;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-
 import org.jvnet.hk2.annotations.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 
@@ -35,13 +36,11 @@ public class ServiceAttestation {
     @Autowired
     private AttestationRepo attestationRepo;
     @Autowired
-    private ParticipantRepo participantRepo;
-    @Autowired
-    private FormationRepo formationRepo;
-    @Autowired
     AuthenticationFilter authenticationFilter;
     @Autowired
     MongoTemplate mongoTemplate;
+    @Autowired
+    private Configuration freemarkerConfig;
 
     /*-------------------------------Gestion des attestations----------------------------------*/
 
@@ -57,23 +56,30 @@ public class ServiceAttestation {
     }
 
 
-    public byte[] generateAttestation(String idformation, String idparticipant) throws IOException, DocumentException {
-        Query query = new Query();
-        Attestation attestation = mongoTemplate.findOne(query(Criteria.where("ParticipantID").is(idparticipant).and("FormationID").is(idformation)), Attestation.class);
-        System.out.println(attestation);
-        Participant participant = mongoTemplate.findOne(query(Criteria.where("id").is(attestation.getParticipantID())), Participant.class);
-        Formation formation = mongoTemplate.findOne(query(Criteria.where("_id").is(attestation.getFormationID())), Formation.class);
-        Document document = new Document();
+    public byte[] generateAttestation(String idformation, String idparticipant) throws IOException, DocumentException, TemplateException {
+        // Get the participant and formation data from your database
+        Participant participant = mongoTemplate.findOne(query(Criteria.where("id").is(idparticipant)), Participant.class);
+        Formation formation = mongoTemplate.findOne(query(Criteria.where("_id").is(idformation)), Formation.class);
+
+        Map<String, Object> model = new HashMap<>();
+        model.put("username", participant.getNomPrenom());
+        model.put("course_name", formation.getThemeFormation());
+        model.put("completion_date", new Date().toString());
+
+        // Render the HTML template
+        Template template = freemarkerConfig.getTemplate("certificate.html");
+        String html = FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
+
+        // Convert the HTML to a PDF document using Flying Saucer
+        ITextRenderer renderer = new ITextRenderer();
+        renderer.setDocumentFromString(html);
+        renderer.layout();
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        PdfWriter writer = PdfWriter.getInstance(document, outputStream);
+        renderer.createPDF(outputStream);
 
-        document.open();
-        document.add(new Paragraph("Certification"));
-        document.add(new Paragraph("Username: " + participant.getNomPrenom()));
-        document.add(new Paragraph("Course Name: " + formation.getThemeFormation()));
-        document.add(new Paragraph("Completion Date: " + new Date()));
-        document.close();
+        // Get the generated PDF as a byte array
+        byte[] pdfBytes = outputStream.toByteArray();
 
-        return outputStream.toByteArray();
+        return pdfBytes;
     }
 }
