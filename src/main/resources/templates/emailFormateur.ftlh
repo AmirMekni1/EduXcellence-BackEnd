@@ -116,7 +116,7 @@
           <tr>
             <td style="padding-right: 0px;padding-left: 0px;" align="center">
 
-              <img align="center" border="0" src="https://github.com/AmirMekni1/EduXcellence-FrontEnd/blob/EduXcellence-FrontEnd/notifications.gif?raw=true" alt="Image" title="Image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 550px;" width="550"/>
+              <img align="center" border="0" src="https://github.com/AmirMekni1/EduXcellence-FrontEnd/blob/main/src/assets/Messages.gif?raw=true" alt="Image" title="Image" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 550px;" width="550"/>
 
             </td>
           </tr>

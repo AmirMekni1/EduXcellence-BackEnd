@@ -159,13 +159,9 @@ public class ServiceFormation {
     /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     public ResponseEntity<Map> afficherFormationparid(String token, String id) {
-        if (authFiltre.VerifierTOKEN(token) && (authFiltre.RecupererRole(token).equals("USER") || authFiltre.RecupererRole(token).equals("ADMIN"))) {
             Query query = new Query(Criteria.where("_id").is(id));
             Formation formation = mongoTemplate.findOne(query, Formation.class);
             map.put("Formation", formation);
-        } else {
-            map.put("Message", "Accès réfusé");
-        }
         return new ResponseEntity<>(map, HttpStatus.OK);
     }
 
@@ -192,7 +188,7 @@ public class ServiceFormation {
                 map.put("Message", "Aucun participant inscrit dans cette formation");
             }else  if (payementss < 3 ) {
                 map.put("Message", "Il doit y avoir au moins 3 inscriptions");
-            }else if (payementss > 3 ) {
+            }else if (payementss >= 3 ) {
                 String nomFormation = null;
                 List<Payement> payements = mongoTemplate.find(Query.query(Criteria.where("FormationID").is(formationId).and("verifierInscription").is(false)).limit(3), Payement.class);
                 for (Payement payement : payements) {
