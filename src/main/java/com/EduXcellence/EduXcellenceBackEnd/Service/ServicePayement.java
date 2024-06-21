@@ -66,7 +66,7 @@ public class ServicePayement {
     }
 
     public byte[] getFile(String fileName) throws IOException {
-        Path filePath = Paths.get("uploads").resolve(fileName).normalize();
+        Path filePath = Paths.get("src/main/resources/BonDeCommand").resolve(fileName).normalize();
         if (Files.exists(filePath)) {
             return Files.readAllBytes(filePath);
         } else {

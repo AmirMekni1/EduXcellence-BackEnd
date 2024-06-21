@@ -183,7 +183,7 @@ public class ServiceFormation {
     /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
     public ResponseEntity<Map> planifierFormation(String formationId, String formateurId, String token) throws Exception {
         if (authFiltre.VerifierTOKEN(token) && authFiltre.RecupererRole(token).equals("ADMIN")) {
-            long payementss = mongoTemplate.count(Query.query(Criteria.where("FormationID").is(formationId)), Payement.class);
+            long payementss = mongoTemplate.count(Query.query(Criteria.where("FormationID").is(formationId).and("verifierInscription").is(false)), Payement.class);
             if ( payementss == 0) {
                 map.put("Message", "Aucun participant inscrit dans cette formation");
             }else  if (payementss < 3 ) {
